@@ -1,51 +1,81 @@
 class Body {
-    constructor(x_, y_, w_, h_) {
+    constructor(x_, y_, w_) {
         this.x = x_;
         this.y = y_;
         this.w = w_;
-        this.h = h_;
+        
+        this.ground = true;
+        this.gravity = 0.5;
+        this.lift = -10;
+        this.velocity = 0;
+    }
+
+    update() {
+        this.velocity += this.gravity;
+        this.y += this.velocity;
+
+        // On ground
+        if (this.y + 150 >= height - 50) {
+            this.y = height - 50 - 150;
+            this.velocity = 0;
+            this.ground = true;
+        }
+
+        // Hits ceiling
+        if (this.y - this.w/2 <= 0) {
+            this.y = this.w/2;
+            this.velocity = 0;
+        }
+
+        // Left wall
+        if (this.x - 40 <= 0) {
+            this.x = 40;
+        }
+
+        // Right wall
+        if (this.x + 40 >= width) {
+            this.x = width - 40;
+        }
     }
 
     show() {
         // console.log(this.x, this.y)
-        ellipse(this.x, this.y, this.w, this.h);
+        beginShape();
+
+            // Torso
+            line(this.x, this.y, this.x, this.y + 100);
+
+            // Arms
+            line(this.x, this.y + 50, this.x - 40, this.y + 40);
+            line(this.x, this.y + 50, this.x + 40, this.y + 40);
+
+            // Legs
+            line(this.x, this.y + 100, this.x - 30, this.y + 150);
+            line(this.x, this.y + 100, this.x + 30, this.y + 150);
+
+            // Head
+            circle(this.x, this.y, 50);
+
+        endShape(CLOSE);
+    }
+
+    /************************************************************************
+                                    MOVEMENTS
+    ************************************************************************/
+    onGround() {
+        return this.ground;
     }
 
     jump() {
-        // this.y -= 50;
-        // setTimeout(function() {
-        // }, 5);
-        // this.y += 60;
-        for (var i = 0; i < 50; i++) {
-            this.wait(5)
-            this.y -= 1;
-
-        }
-        // for (var i = 0; i < 50; i++) {
-        //     if (i % 1000 == 0) {
-        //         this.y += 1;
-        //     }
-        // }
-
-        console.log(true)
-
-        // this.y += 50;
+        this.velocity += this.lift;
+        this.ground = false;
     }
 
-    delay(n) {
-        n = n || 2000;
-        return new Promise(done => {
-            setTimeout(() => {
-                done();
-            }, n);
-        });
-    }
-
-    wait(ms) {
-        var start = Date.now(),
-            now = start;
-        while (now - start < ms) {
-          now = Date.now();
+    move(direction) {
+        if (direction === 'left') {
+            this.x -= 20;
+        } else if (direction === 'right') {
+            this.x += 20;
         }
     }
 }
